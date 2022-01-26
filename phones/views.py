@@ -10,28 +10,26 @@ def index(request):
 
 def show_catalog(request):
     template = 'catalog.html'
-    qs = Phone.objects.all()
-    phones = []
-    for item in qs:
-        print(type(item))
-        phones.append(
-            {
-                'id': item['id'],
-                'name': item['name'],
-                'image': item['image'],
-                'price': item['price'],
-                'release_date': item['release_date'],
-                'lte_exists': item['lte_exists'],
-                'slug': item['name']
-            }
-        )
-    context = {
-        'qs': phones
-    }
+    sort_type = request.GET.get('sort')
+    context = {}
+    if sort_type == 'name' or not sort_type:
+        context = {
+            'phones': Phone.objects.order_by('name')
+        }
+    elif sort_type == 'min_price':
+        context = {
+            'phones': Phone.objects.order_by('price')
+        }
+    elif sort_type == 'max_price':
+        context = {
+            'phones': Phone.objects.order_by('-price')
+        }
     return render(request, template, context)
 
 
 def show_product(request, slug):
     template = 'product.html'
-    context = {}
+    context = {
+        'phone': Phone.objects.get(slug=slug)
+    }
     return render(request, template, context)
